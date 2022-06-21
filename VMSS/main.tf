@@ -1,0 +1,126 @@
+#create VMSS with custome image
+
+resource "azurerm_linux_virtual_machine_scale_set" "VMSS" {
+  name                            = "VMSS"
+  resource_group_name             = var.RSG_name
+  location                        = var.location
+  sku                             = var.VMSS_size
+  instances                       = 3
+  admin_username                  = var.admin_user
+  admin_password                  = var.admin_password
+  disable_password_authentication = false
+  depends_on                      = [var.VMSS_nsg_id]
+#  source_image_id                 = data.azurerm_shared_image_version.VMSSImage.id
+
+ # create original image
+
+source_image_reference {
+    publisher = "Canonical"
+    offer     = "0001-com-ubuntu-server-focal"
+    sku       = "20_04-lts-gen2"
+    version   = "latest"
+  }
+
+
+  network_interface {
+    name                      = "VMSSnic"
+    primary                   = true
+    network_security_group_id = var.VMSS_nsg_id
+
+    ip_configuration {
+      name                                   = "IPConfiguration"
+      primary                                = true
+      subnet_id                              = var.VMSS_subnet_id
+      load_balancer_backend_address_pool_ids = [var.BEpool_id]
+      load_balancer_inbound_nat_rules_ids    = [var.LB_natpool_id]
+    }
+  }
+
+  os_disk {
+    storage_account_type = "Standard_LRS"
+    caching              = "ReadWrite"
+  }
+
+  # Since these can change via auto-scaling outside of Terraform,
+  # let's ignore any changes to the number of instances
+  lifecycle {
+    ignore_changes = [instances]
+  }
+
+#  tags = var.Environment
+
+}
+
+resource "azurerm_monitor_autoscale_setting" "scaling" {
+  name                = "autoscale-config"
+  resource_group_name = var.RSG_name
+  location            = var.location
+  target_resource_id  = azurerm_linux_virtual_machine_scale_set.VMSS.id
+
+  profile {
+    name = "AutoScale"
+
+    capacity {
+      default = 3
+      minimum = 3
+      maximum = 5
+    }
+
+    rule {
+      metric_trigger {
+        metric_name        = "Percentage CPU"
+        metric_resource_id = azurerm_linux_virtual_machine_scale_set.VMSS.id
+        time_grain         = "PT1M"
+        statistic          = "Average"
+        time_window        = "PT5M"
+        time_aggregation   = "Average"
+        operator           = "GreaterThan"
+        threshold          = 75
+      }
+
+      scale_action {
+        direction = "Increase"
+        type      = "ChangeCount"
+        value     = "1"
+        cooldown  = "PT1M"
+      }
+
+    }
+
+    rule {
+      metric_trigger {
+        metric_name        = "Percentage CPU"
+        metric_resource_id = azurerm_linux_virtual_machine_scale_set.VMSS.id
+        time_grain         = "PT1M"
+        statistic          = "Average"
+        time_window        = "PT5M"
+        time_aggregation   = "Average"
+        operator           = "LessThan"
+        threshold          = 25
+      }
+
+      scale_action {
+        direction = "Decrease"
+        type      = "ChangeCount"
+        value     = "1"
+        cooldown  = "PT1M"
+      }
+    }
+  }
+
+#  tags = var.Environment
+
+}
+resource "azurerm_virtual_machine_scale_set_extension" "script" {
+  name                         = "script"
+  publisher                    = "Microsoft.OSTCExtensions"
+  type                         = "CustomScriptForLinux"
+  type_handler_version         = "1.2"
+  virtual_machine_scale_set_id = azurerm_linux_virtual_machine_scale_set.VMSS.id
+  settings = <<SETTINGS
+    {
+"fileUris": ["https://avshastorage.blob.core.windows.net/files/script.sh"],
+    "commandToExecute": "script.sh"
+  }
+SETTINGS
+}
