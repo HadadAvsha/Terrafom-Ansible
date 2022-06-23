@@ -10,11 +10,9 @@ module "VMSS" {
   LB_natpool_id  = azurerm_lb_nat_pool.lbnatpool.id
   admin_user     = var.admin_user
   admin_password = var.admin_password
-
-  #  Environment = var.Environment
 }
-#create random string for unique and random usage
 
+#create random string for unique and random usage
 resource "random_string" "fqdn" {
   length  = 6
   special = false
@@ -22,13 +20,13 @@ resource "random_string" "fqdn" {
   number  = false
 }
 
-
 # Create a resource group
 resource "azurerm_resource_group" "rg" {
   name     = var.RSG_name
   location = var.location
 }
 
+#using remote backend to manage and store terraform state
 terraform {
   backend "azure" {
     resource_group_name = "tfstateRG"

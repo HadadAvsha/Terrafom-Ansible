@@ -3,8 +3,6 @@ variable "name_prefix" {
   default     = "TF-postgres"
 }
 
-#location for creation
-
 variable "location" {
   description = "Loaction of objects in azure"
   default     = "East US"
@@ -27,12 +25,12 @@ variable "size" {
 }
 
 variable "DB_name_prefix" {
+  description = "Prefix for postgres server name"
   default = "DataBase"
 }
 
 
 #variable for network range
-
 variable "node_address_space" {
   description = "address space of vnet"
   type        = list(string)
@@ -40,7 +38,6 @@ variable "node_address_space" {
 }
 
 #variable for app subnet range
-
 variable "node_address_prefix" {
   description = "subnet address of app VMs"
   type        = list(string)
@@ -53,7 +50,6 @@ variable "application_port" {
 }
 
 #variable for db subnet range
-
 variable "db_address_prefix" {
   description = "subnet of postgres"
   type        = list(string)
@@ -61,7 +57,7 @@ variable "db_address_prefix" {
 }
 
 variable "myip" {
-  description = "enter your ip"
+  description = "enter your ip in order to obtain SSH capabilities"
   default     = "109.186.152.248"
 }
 

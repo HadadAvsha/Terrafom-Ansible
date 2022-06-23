@@ -1,5 +1,4 @@
 #parameters for VMSS, conifure 'instances' as needed
-
 resource "azurerm_linux_virtual_machine_scale_set" "VMSS" {
   name                            = "VMSS"
   resource_group_name             = var.RSG_name
@@ -11,8 +10,7 @@ resource "azurerm_linux_virtual_machine_scale_set" "VMSS" {
   disable_password_authentication = false
   depends_on                      = [var.VMSS_nsg_id]
 
- # create original image
-
+# create original image
 source_image_reference {
     publisher = "Canonical"
     offer     = "0001-com-ubuntu-server-focal"
@@ -21,7 +19,6 @@ source_image_reference {
   }
 
 # Nic`s parameters and configuration with relation to the LB
-
   network_interface {
     name                      = "VMSSnic"
     primary                   = true
@@ -47,12 +44,10 @@ source_image_reference {
     ignore_changes = [instances]
   }
 
-#  tags = var.Environment
 
 }
 
 #scaling metrics
-
 resource "azurerm_monitor_autoscale_setting" "scaling" {
   name                = "autoscale-config"
   resource_group_name = var.RSG_name
@@ -110,13 +105,11 @@ resource "azurerm_monitor_autoscale_setting" "scaling" {
     }
   }
 
-#  tags = var.Environment
 
 }
 
 #runing a custom script (can see content in the link) to install python and update\upgrade
 #in order to be able to configure machines via Ansible
-
 resource "azurerm_virtual_machine_scale_set_extension" "script" {
   name                         = "script"
   publisher                    = "Microsoft.OSTCExtensions"

@@ -1,6 +1,4 @@
-
 #creating subnet for DB
-
 resource "azurerm_subnet" "db_subnet" {
   name                 = "db-subnet"
   virtual_network_name = azurerm_virtual_network.vnet.name
@@ -22,7 +20,6 @@ resource "azurerm_subnet" "db_subnet" {
 }
 
 #creating NSG for DB
-
 resource "azurerm_network_security_group" "db_nsg" {
   name                = "${var.name_prefix}-nsg"
   location            = azurerm_resource_group.rg.location
@@ -50,7 +47,7 @@ resource "azurerm_network_security_group" "db_nsg" {
     source_address_prefix      = "*"
     destination_address_prefix = "10.0.0.0/24"
   }
-  #Implicit_deny all inbound traffic with lower priority
+#Implicit_deny all inbound traffic with lower priority
 security_rule {
     name                       = "Implicit_deny"
     priority                   = 4000
@@ -65,15 +62,13 @@ security_rule {
 }
 
 #assosiating NSG to DB subnet
-
 resource "azurerm_subnet_network_security_group_association" "db_association" {
   subnet_id                 = azurerm_subnet.db_subnet.id
   network_security_group_id = azurerm_network_security_group.db_nsg.id
 
 }
 
-#creating
-
+#creating dns zone in order to be able to find the DB server
 resource "azurerm_private_dns_zone" "pri_dns" {
   name                = "${var.RSG_name}-pdz.postgres.database.azure.com"
   resource_group_name = azurerm_resource_group.rg.name
@@ -81,7 +76,7 @@ resource "azurerm_private_dns_zone" "pri_dns" {
   depends_on = [azurerm_subnet_network_security_group_association.db_association]
 
 }
-
+#linking dns zone with the Vnet we created
 resource "azurerm_private_dns_zone_virtual_network_link" "link" {
   name                  = "${var.RSG_name}-pdzvnetlink.com"
   private_dns_zone_name = azurerm_private_dns_zone.pri_dns.name
@@ -90,6 +85,7 @@ resource "azurerm_private_dns_zone_virtual_network_link" "link" {
 
 }
 
+#creates PostgreSQL Flexible Server
 resource "azurerm_postgresql_flexible_server" "postgres_flex_server" {
   name                   = "${var.RSG_name}-avsha-postgres-server"
   resource_group_name    = azurerm_resource_group.rg.name
@@ -107,13 +103,14 @@ resource "azurerm_postgresql_flexible_server" "postgres_flex_server" {
 
 }
 
+#diabling ssl for PostgreSQL Flexible Server
 resource "azurerm_postgresql_flexible_server_configuration" "postgres_configuration" {
   name      = "require_secure_transport"
   server_id = azurerm_postgresql_flexible_server.postgres_flex_server.id
   value     = "off"
 
 }
-
+#creates Database in PostgreSQL Flexible Server
 resource "azurerm_postgresql_flexible_server_database" "postgres" {
   name      = "avshapostgres"
   server_id = azurerm_postgresql_flexible_server.postgres_flex_server.id

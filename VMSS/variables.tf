@@ -1,6 +1,4 @@
-#azurerm_resource_group.rg.name
 variable "RSG_name" {}
-#azurerm_resource_group.rg.location
 variable "location" {}
 variable "application_port" {
   description = "Port that you want to expose to the external load balancer"
