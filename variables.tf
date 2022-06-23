@@ -5,15 +5,25 @@ variable "name_prefix" {
 
 #location for creation
 
+variable "location" {
+  description = "Loaction of objects in azure"
+  default     = "East US"
+  type        = string
+  #options = ["North Central US", "East US"]
+}
+
 variable "RSG_name" {
   description = "Name of Resource group"
   type        = string
-  default     = "Staging"
+  default     = "production"
+  #options = ["staging", "production"]
 }
-variable "location" {
-  description = "Loaction of objects in azure"
-  default     = "North Central US"
+
+variable "size" {
+  description = "VM size"
   type        = string
+  default     = "Standard_B2ms"
+  #options = ["Standard_B2s", "Standard_B2ms"]
 }
 
 variable "DB_name_prefix" {
@@ -53,15 +63,6 @@ variable "db_address_prefix" {
 variable "myip" {
   description = "enter your ip"
   default     = "109.186.152.248"
-}
-
-
-
-variable "size" {
-  description = "VM size"
-  type        = string
-  default     = "Standard_B2s"
-  #options = ["Standard_B2s", "Standard_B2ms"]
 }
 
 variable "Environment" {

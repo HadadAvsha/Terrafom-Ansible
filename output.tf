@@ -1,21 +1,28 @@
-output "vmss_public_ip" {
-  value = azurerm_public_ip.pub_ip
-}
-
-output "VMSS_admin_user" {
-  value = var.admin_user
-}
-
-output "VMSS_admin_password" {
-  value = var.admin_password
+output "LB_public_ip" {
+  value = azurerm_public_ip.pub_ip.ip_address
 }
 
 output "DB_username" {
-  value = var.db_admin_user
+  value = azurerm_postgresql_flexible_server.postgres_flex_server.administrator_login
+  sensitive = true
 }
 
 output "DB_admin_password" {
-  value = var.db_admin_password
+  value = azurerm_postgresql_flexible_server.postgres_flex_server.administrator_password
+  sensitive = true
 }
 
+output "admin_password" {
+  value = module.VMSS.admin_password
+  sensitive = true
+}
 
+output "postgresql_flexible_server_database_name" {
+  value = azurerm_postgresql_flexible_server_database.postgres.name
+  sensitive = true
+}
+
+output "azurerm_postgresql_flexible_server" {
+  value = azurerm_postgresql_flexible_server.postgres_flex_server.name
+  sensitive = true
+}

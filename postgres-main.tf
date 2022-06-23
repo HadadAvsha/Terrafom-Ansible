@@ -34,7 +34,7 @@ resource "azurerm_network_security_group" "db_nsg" {
     direction                  = "Inbound"
     access                     = "Allow"
     protocol                   = "Tcp"
-    source_port_range          = "5432"
+    source_port_range          = "*"
     destination_port_range     = "5432"
     source_address_prefix      = "10.0.0.0/24"
     destination_address_prefix = "*"
@@ -50,7 +50,18 @@ resource "azurerm_network_security_group" "db_nsg" {
     source_address_prefix      = "*"
     destination_address_prefix = "10.0.0.0/24"
   }
-
+  #Implicit_deny all inbound traffic with lower priority
+security_rule {
+    name                       = "Implicit_deny"
+    priority                   = 4000
+    direction                  = "Inbound"
+    access                     = "Deny"
+    protocol                   = "*"
+    source_port_range          = "*"
+    destination_port_range     = "*"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
 }
 
 #assosiating NSG to DB subnet
@@ -91,12 +102,20 @@ resource "azurerm_postgresql_flexible_server" "postgres_flex_server" {
   storage_mb             = 32768
   sku_name               = "B_Standard_B1ms"
   backup_retention_days  = 7
-
+#  require_secure_transport = false
   depends_on = [azurerm_private_dns_zone_virtual_network_link.link]
+
+}
+
+resource "azurerm_postgresql_flexible_server_configuration" "postgres_configuration" {
+  name      = "require_secure_transport"
+  server_id = azurerm_postgresql_flexible_server.postgres_flex_server.id
+  value     = "off"
+
 }
 
 resource "azurerm_postgresql_flexible_server_database" "postgres" {
-  name      = "avshsapostgres"
+  name      = "avshapostgres"
   server_id = azurerm_postgresql_flexible_server.postgres_flex_server.id
   collation = "en_US.UTF8"
   charset   = "UTF8"

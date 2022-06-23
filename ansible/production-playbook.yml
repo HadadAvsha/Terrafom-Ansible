@@ -1,0 +1,89 @@
+---
+- name: main playbook
+  hosts: prodgroup
+  become: true
+  vars_files:
+     - production_vars.yml
+  tasks:
+  - name: add nodejs apt key
+    apt_key:
+        url: https://deb.nodesource.com/gpgkey/nodesource.gpg.key
+        state: present
+  - name: add nodejs repository
+    apt_repository:
+        repo: deb https://deb.nodesource.com/node_14.x {{ ansible_lsb.codename }} main
+        state: present
+        update_cache: true
+  - name: install nodejs
+    apt:
+        name: nodejs
+        state: present
+  - name: install nodejs prerequisites
+    ansible.builtin.shell: sudo apt -y install gcc g++ make
+  - name: Clone a github repository
+    git:
+        repo: https://github.com/HadadAvsha/bootcamp-app.git
+        dest: /home/app/bootcamp-app/
+        clone: true
+        update: true
+  - name: Creating a file with content
+    copy:
+        dest: "/home/app/bootcamp-app/.env"
+        content: |
+          # Host configuration
+          PORT=8080
+          HOST={{ ansible_default_ipv4.address }}
+          NODE_ENV=development
+          HOST_URL={{ HOST_URL }}
+          COOKIE_ENCRYPT_PWD=superAwesomePasswordStringThatIsAtLeast32CharactersLong!
+
+          # Okta configuration
+          OKTA_ORG_URL={{ OKTA_ORG_URL }}
+          OKTA_CLIENT_ID={{ OKTA_CLIENT_ID }}
+          OKTA_CLIENT_SECRET={{ OKTA_CLIENT_SECRET }}
+
+          # Postgres configuration
+          PGHOST={{ PGHOST }}
+          PGUSERNAME=postgres
+          PGDATABASE=avshapostgres
+          PGPASSWORD={{ PGPASSWORD }}
+          PGPORT={{ PGPORT }}
+  - name: Install packages based on package.json.
+    npm:
+      path: /home/app/bootcamp-app/ 
+  - name: install nodemon
+    become: true
+    ansible.builtin.shell: cd /home/app/bootcamp-app/ "npm install --save-dev nodemon@2"
+#  - name: npm audit fix
+#    become: true
+#    command: "npm audit fix --force"
+#      dest: /home/app/bootcamp-app/
+  - name: run initdb
+    run_once: true
+    become: true
+    command: chdir=/home/app/bootcamp-app/ npm run initdb
+  - name: install pm2
+    become: true
+    command: "sudo npm install pm2@latest -g"
+  - name: pm2 startup
+    become: true
+    command: "pm2 startup"
+  - name: pm2 to startup
+    become: true
+    command: "env PATH=$PATH:/usr/bin /usr/lib/node_modules/pm2/bin/pm2 startup systemd -u app --hp /home/app"
+#  - name: run app
+#    become: true
+#    command: pm2 start /home/app/bootcamp-app/src/index.js
+#      chdir=/home/app/bootcamp-app/src/
+#    sudo: yes
+#    sudo_user: root
+#  - name: delete existing pm2 processes if running
+#    command: pm2 delete all
+#    ignore_errors: True
+  - name: run app
+    command: "pm2 start 'npm run dev'"
+    args:
+      chdir: /home/app/bootcamp-app/
+  - name: save app in pm2 startup state
+    become: true
+    command: "pm2 save"

@@ -1,0 +1,7 @@
+HOST_URL: http://***.***.***.***:8080
+OKTA_ORG_URL: https://dev-*******.okta.com
+OKTA_CLIENT_ID: **************
+OKTA_CLIENT_SECRET: ***********
+PGHOST: ****************.postgres.database.azure.com
+PGPASSWORD: ******
+PGPORT: *****
