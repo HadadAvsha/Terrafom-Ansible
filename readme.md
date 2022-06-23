@@ -1,3 +1,27 @@
+
+![ansible](https://user-images.githubusercontent.com/106066816/175376549-c2b4d3ef-0a98-4e6c-b9b1-c39c3a1f078a.png) ![terraform](https://user-images.githubusercontent.com/106066816/175376565-1b39ff13-3fa8-406a-9aac-d32bebd82494.png)
+![ansibleonazure01](https://user-images.githubusercontent.com/106066816/175378683-f46b9997-fbf5-41a5-9c47-8694ed480eb7.png).<br/>
+This week we needed to use Terraform (Iaac) to build the infrastructure and then use Ansible to configure our application.<br/>
+This is My project result and i hope youll use and enjoy.<br/>
+To begin create a filename.tf file in the root directory with the following variables and assign desired values.<br/>
+
+variable "admin_user" {<br/>
+  description = "User name to use as the admin account on the VMs that will be part of the VM scale set"<br/>
+  default     = ""<br/>
+}<br/>
+variable "admin_password" {<br/>
+  description = "Default password for admin account"<br/>
+  default     = ""<br/>
+}<br/>
+variable "db_admin_user" {<br/>
+  description = "User name for postgres"<br/>
+  default     = ""<br/>
+}<br/>
+variable "db_admin_password" {<br/>
+  description = "Default password for postgres admin account"<br/>
+  default     = ""<br/>
+}<br/>
+
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
