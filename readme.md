@@ -21,6 +21,11 @@ variable "db_admin_password" {<br/>
   description = "Default password for postgres admin account"<br/>
   default     = ""<br/>
 }<br/>
+Next enter your ip in the "myip" variable in variables.tf file<br/>
+variable "myip" {<br/>
+  description = "enter your ip in order to obtain SSH capabilities"<br/>
+  default     = ""<br/>
+}<br/>
 
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
