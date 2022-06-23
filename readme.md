@@ -30,8 +30,8 @@ variable "myip" {<br/>
 In preferred terrafrom terminal run:<br/>
 'terraform init'<br/>
 'terraform plan'<br/>
-terraform apply' -> 'yes'<br/>
-enjoy!
+'terraform apply' -> 'yes'<br/>
+Enjoy!
 
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
