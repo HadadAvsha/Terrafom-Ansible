@@ -1,0 +1,23 @@
+[STAGE1]
+stagvm1 ansible_host=<ip> ansible_port=<port> ansible_user=<amchine username> ansible_password=<username_password>
+[STAGE2]
+stagvm2 ansible_host=<ip> ansible_port=<port> ansible_user=<amchine username> ansible_password=<username_password>
+[STAGE3]
+stagvm3 ansible_host=<ip> ansible_port=<port> ansible_user=<amchine username> ansible_password=<username_password>
+
+[staggroup:children]
+STAGE1
+STAGE2
+STAGE3
+
+[PROD1]
+prodvm1 ansible_host=<ip> ansible_port=<port> ansible_user=<amchine username> ansible_password=<username_password>
+[PROD2]
+prodvm2 ansible_host=<ip> ansible_port=<port> ansible_user=<amchine username> ansible_password=<username_password>
+[PROD3]
+prodvm3 ansible_host=<ip> ansible_port=<port> ansible_user=<amchine username> ansible_password=<username_password>
+
+[prodgroup:children]
+PROD1
+PROD2
+PROD3
